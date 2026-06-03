@@ -6,8 +6,14 @@ import { Login } from './components/Login';
 import { useStore } from './store/useStore';
 import { Loader2 } from 'lucide-react';
 
-// Configure axios to always send cookies
-axios.defaults.withCredentials = true;
+// Configure axios to always send token if available
+axios.interceptors.request.use((config) => {
+  const token = localStorage.getItem('token');
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
 
 function App() {
   const { user, setUser, setSections } = useStore();
@@ -16,6 +22,12 @@ function App() {
   useEffect(() => {
     const initAuth = async () => {
       try {
+        const token = localStorage.getItem('token');
+        if (!token) {
+          setIsInitializing(false);
+          return;
+        }
+
         const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000';
         const res = await axios.get(`${apiUrl}/auth/me`);
         if (res.data.user) {

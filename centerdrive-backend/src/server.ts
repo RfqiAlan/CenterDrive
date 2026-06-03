@@ -3,7 +3,6 @@ import cors from 'cors';
 import helmet from 'helmet';
 import cookieParser from 'cookie-parser';
 import dotenv from 'dotenv';
-import passport from 'passport';
 
 import authRoutes from './routes/auth';
 import sectionsRoutes from './routes/sections';
@@ -14,6 +13,8 @@ dotenv.config();
 const app = express();
 const port = process.env.PORT || 3000;
 
+app.set('trust proxy', 1);
+
 // Middlewares
 app.use(helmet());
 app.use(cors({
@@ -22,7 +23,6 @@ app.use(cors({
 }));
 app.use(express.json());
 app.use(cookieParser());
-app.use(passport.initialize());
 
 // Basic health check route
 app.get('/health', (req, res) => {

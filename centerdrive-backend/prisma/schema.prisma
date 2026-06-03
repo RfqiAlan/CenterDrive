@@ -9,12 +9,12 @@ datasource db {
 
 model User {
   id        String    @id @default(uuid())
-  googleId  String    @unique
   email     String    @unique
-  name      String
+  password  String
+  name      String?
   avatar    String?
-  createdAt DateTime  @default(now())
   sections  Section[]
+  createdAt DateTime  @default(now())
 }
 
 model Section {

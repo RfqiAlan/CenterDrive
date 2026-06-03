@@ -29,9 +29,11 @@ export const Sidebar: React.FC = () => {
   const handleLogout = async () => {
     try {
       await axios.post(`${apiUrl}/auth/logout`);
-      setUser(null);
     } catch (error) {
-      console.error('Logout failed', error);
+      console.error('Logout request failed', error);
+    } finally {
+      localStorage.removeItem('token');
+      setUser(null);
     }
   };
 
