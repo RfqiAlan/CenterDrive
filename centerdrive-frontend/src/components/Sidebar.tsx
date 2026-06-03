@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useStore } from '../store/useStore';
-import { HardDrive, Plus, Trash2, Edit, LogOut } from 'lucide-react';
+import { HardDrive, Plus, Trash2, Edit, LogOut, X } from 'lucide-react';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 import { AddDriveModal } from './AddDriveModal';
@@ -11,7 +11,7 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export const Sidebar: React.FC = () => {
-  const { user, sections, activeSectionId, setActiveSectionId, removeSection, updateSection, setUser } = useStore();
+  const { user, sections, activeSectionId, setActiveSectionId, removeSection, updateSection, setUser, isSidebarOpen, setSidebarOpen } = useStore();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editName, setEditName] = useState('');
@@ -61,11 +61,31 @@ export const Sidebar: React.FC = () => {
 
   return (
     <>
-    <div className="w-72 bg-zinc-950 text-zinc-100 flex flex-col h-screen border-r border-zinc-800 flex-shrink-0">
-      <div className="p-6">
+    {/* Mobile Overlay */}
+    {isSidebarOpen && (
+      <div 
+        className="fixed inset-0 bg-black/60 z-30 md:hidden backdrop-blur-sm transition-opacity"
+        onClick={() => setSidebarOpen(false)}
+      />
+    )}
+
+    {/* Sidebar Container */}
+    <div className={cn(
+      "w-72 bg-zinc-950 text-zinc-100 flex flex-col h-screen border-r border-zinc-800 flex-shrink-0",
+      "fixed md:relative z-40 transition-transform duration-300 ease-in-out md:translate-x-0",
+      isSidebarOpen ? "translate-x-0" : "-translate-x-full"
+    )}>
+      <div className="p-6 flex items-center justify-between">
         <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-indigo-500 bg-clip-text text-transparent">
           centerDrive
         </h1>
+        {/* Close button on mobile */}
+        <button 
+          onClick={() => setSidebarOpen(false)}
+          className="md:hidden text-zinc-400 hover:text-white p-1"
+        >
+          <X size={20} />
+        </button>
       </div>
       
       <div className="px-4 pb-4">
