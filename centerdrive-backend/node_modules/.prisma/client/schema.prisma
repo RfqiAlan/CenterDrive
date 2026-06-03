@@ -1,0 +1,30 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String    @id @default(uuid())
+  googleId  String    @unique
+  email     String    @unique
+  name      String
+  avatar    String?
+  createdAt DateTime  @default(now())
+  sections  Section[]
+}
+
+model Section {
+  id        String   @id @default(uuid())
+  userId    String
+  label     String
+  driveUrl  String
+  folderId  String
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id])
+}
