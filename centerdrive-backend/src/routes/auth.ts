@@ -44,8 +44,8 @@ router.get('/google/callback', passport.authenticate('google', { session: false,
   
   res.cookie('token', token, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'lax',
+    secure: process.env.NODE_ENV === 'production', // Wajib true jika sameSite none
+    sameSite: 'none', // Wajib 'none' untuk beda domain (Frontend Vercel dan Backend Vercel)
     maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
   });
 
