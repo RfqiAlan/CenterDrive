@@ -1,11 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 
-export interface AuthRequest extends Request {
-  user?: { id: string };
-}
-
-export const requireAuth = (req: AuthRequest, res: Response, next: NextFunction) => {
+export const requireAuth = (req: Request, res: Response, next: NextFunction) => {
   const token = req.cookies.token;
 
   if (!token) {
@@ -14,7 +10,8 @@ export const requireAuth = (req: AuthRequest, res: Response, next: NextFunction)
 
   try {
     const payload = jwt.verify(token, process.env.JWT_SECRET as string) as { id: string };
-    req.user = payload;
+    // Assign payload to req.user (cast as any to bypass express type overriding)
+    (req as any).user = payload;
     next();
   } catch (err) {
     return res.status(401).json({ error: 'Invalid token' });

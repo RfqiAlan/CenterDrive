@@ -1,9 +1,9 @@
-import { Router } from 'express';
+import { Router, Request } from 'express';
 import passport from 'passport';
 import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
 import jwt from 'jsonwebtoken';
 import prisma from '../utils/prisma';
-import { requireAuth, AuthRequest } from '../utils/auth';
+import { requireAuth } from '../utils/auth';
 
 const router = Router();
 
@@ -37,8 +37,8 @@ passport.use(new GoogleStrategy({
 
 router.get('/google', passport.authenticate('google', { scope: ['profile', 'email'], session: false }));
 
-router.get('/google/callback', passport.authenticate('google', { session: false, failureRedirect: '/login' }), (req, res) => {
-  const user = req.user as any;
+router.get('/google/callback', passport.authenticate('google', { session: false, failureRedirect: '/login' }), (req: Request, res) => {
+  const user = (req as any).user;
   const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET as string, { expiresIn: '7d' });
   
   res.cookie('token', token, {
@@ -51,15 +51,16 @@ router.get('/google/callback', passport.authenticate('google', { session: false,
   res.redirect(process.env.FRONTEND_URL || 'http://localhost:4000');
 });
 
-router.post('/logout', requireAuth, (req, res) => {
+router.post('/logout', requireAuth, (req: Request, res) => {
   res.clearCookie('token');
   res.json({ success: true });
 });
 
-router.get('/me', requireAuth, async (req: AuthRequest, res) => {
+router.get('/me', requireAuth, async (req: Request, res) => {
   try {
+    const userId = (req as any).user?.id;
     const user = await prisma.user.findUnique({
-      where: { id: req.user?.id },
+      where: { id: userId },
       select: { id: true, googleId: true, email: true, name: true, avatar: true }
     });
     res.json({ user });
