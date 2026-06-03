@@ -20,6 +20,9 @@ export const Lightbox: React.FC<Props> = ({ file, onClose }) => {
     imageUrl = `https://drive.google.com/uc?id=${file.id}`;
   }
 
+  const isImage = file.mimeType.startsWith('image/');
+  const previewUrl = `https://drive.google.com/file/d/${file.id}/preview`;
+
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/90 backdrop-blur-md animate-in fade-in duration-200">
       <div className="absolute top-4 right-4 flex items-center space-x-4">
@@ -42,7 +45,7 @@ export const Lightbox: React.FC<Props> = ({ file, onClose }) => {
         </button>
       </div>
       
-      {imageUrl ? (
+      {isImage ? (
         <img 
           src={imageUrl} 
           alt={file.name} 
@@ -55,15 +58,12 @@ export const Lightbox: React.FC<Props> = ({ file, onClose }) => {
           }}
         />
       ) : (
-        <div className="text-white/80 flex flex-col items-center">
-          <p className="mb-4">Preview tidak tersedia secara native.</p>
-          {file.webContentLink && (
-            <a href={file.webContentLink} target="_blank" rel="noopener noreferrer" className="flex items-center space-x-2 text-indigo-400 hover:text-indigo-300">
-              <span>Buka di Tab Baru</span>
-              <ExternalLink size={16} />
-            </a>
-          )}
-        </div>
+        <iframe
+          src={previewUrl}
+          title={file.name}
+          className="w-[90vw] h-[85vh] rounded-md shadow-2xl animate-in zoom-in-95 duration-200 border-none bg-white"
+          allow="autoplay"
+        ></iframe>
       )}
       
       <div className="absolute bottom-4 left-0 right-0 text-center text-white/80 text-sm font-medium">
