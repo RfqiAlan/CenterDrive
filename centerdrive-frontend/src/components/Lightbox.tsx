@@ -1,5 +1,5 @@
 import React from 'react';
-import { X, Download, ExternalLink } from 'lucide-react';
+import { X, Download } from 'lucide-react';
 import type { DriveFile } from '../types';
 
 interface Props {
