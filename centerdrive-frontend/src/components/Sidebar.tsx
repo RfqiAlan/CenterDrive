@@ -11,8 +11,10 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export const Sidebar: React.FC = () => {
-  const { user, sections, activeSectionId, setActiveSectionId, removeSection, setUser } = useStore();
+  const { user, sections, activeSectionId, setActiveSectionId, removeSection, updateSection, setUser } = useStore();
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editName, setEditName] = useState('');
 
   const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 
@@ -24,6 +26,26 @@ export const Sidebar: React.FC = () => {
     } catch (error) {
       console.error('Failed to delete section', error);
     }
+  };
+
+  const handleEditStart = (section: any, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setEditingId(section.id);
+    setEditName(section.label);
+  };
+
+  const handleEditSave = async (id: string) => {
+    if (!editName.trim()) {
+      setEditingId(null);
+      return;
+    }
+    try {
+      await axios.put(`${apiUrl}/api/sections/${id}`, { label: editName.trim() });
+      updateSection(id, { label: editName.trim() });
+    } catch (error) {
+      console.error('Failed to update section', error);
+    }
+    setEditingId(null);
   };
 
   const handleLogout = async () => {
@@ -39,7 +61,7 @@ export const Sidebar: React.FC = () => {
 
   return (
     <>
-    <div className="w-72 bg-zinc-950 text-zinc-100 flex flex-col h-screen border-r border-zinc-800">
+    <div className="w-72 bg-zinc-950 text-zinc-100 flex flex-col h-screen border-r border-zinc-800 flex-shrink-0">
       <div className="p-6">
         <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-indigo-500 bg-clip-text text-transparent">
           centerDrive
@@ -73,12 +95,32 @@ export const Sidebar: React.FC = () => {
                   : "text-zinc-400 hover:bg-zinc-800/50 hover:text-zinc-200"
               )}
             >
-              <div className="flex items-center space-x-3 truncate">
-                <HardDrive size={18} className={activeSectionId === section.id ? "text-indigo-400" : "text-zinc-500"} />
-                <span className="truncate text-sm font-medium">{section.label}</span>
+              <div className="flex items-center space-x-3 truncate flex-1 mr-2">
+                <HardDrive size={18} className={activeSectionId === section.id ? "text-indigo-400" : "text-zinc-500 flex-shrink-0"} />
+                {editingId === section.id ? (
+                  <input
+                    type="text"
+                    value={editName}
+                    onChange={(e) => setEditName(e.target.value)}
+                    onBlur={() => handleEditSave(section.id)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') handleEditSave(section.id);
+                      if (e.key === 'Escape') setEditingId(null);
+                    }}
+                    autoFocus
+                    className="w-full bg-zinc-700 text-white px-2 py-0.5 rounded text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                    onClick={(e) => e.stopPropagation()}
+                  />
+                ) : (
+                  <span className="truncate text-sm font-medium">{section.label}</span>
+                )}
               </div>
-              <div className="flex items-center space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                <button className="p-1 hover:text-blue-400 rounded transition-colors" title="Edit">
+              <div className="flex items-center space-x-1 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0">
+                <button 
+                  className="p-1 hover:text-blue-400 rounded transition-colors" 
+                  title="Edit"
+                  onClick={(e) => handleEditStart(section, e)}
+                >
                   <Edit size={14} />
                 </button>
                 <button 
